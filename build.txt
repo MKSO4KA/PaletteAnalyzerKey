@@ -1,0 +1,3 @@
+displayName = Palette Analyzer
+author = MkSo4kA
+version = 1.0

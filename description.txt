@@ -1,0 +1,5 @@
+Adds a keyboard shortcut to read a palette.
+Adds a keyboard shortcut for reading the palette. 
+The sorted palette is written to the tiles.txt file. 
+Which is needed to create art.
+The mod was created based on the QS(Quick Save) mod.
