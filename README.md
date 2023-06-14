@@ -1,4 +1,6 @@
-# PaletteAnalyzerKey
+# [Steam WorkShop](https://steamcommunity.com/sharedfiles/filedetails/?id=2989170867)
+
+## PaletteAnalyzerKey
 Adds a keyboard shortcut to analyze the palette of world.
 The sorted palette is written to the tiles.txt file. 
 Which is needed to create art.
