@@ -9,6 +9,17 @@ using Terraria.Map;
 using Terraria;
 using System.Drawing;
 using System.Threading;
+using Terraria.ID;
+using Terraria.DataStructures;
+using System.Data;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MonoMod.Utils;
+using Terraria.IO;
+using Terraria.Enums;
+using ReLogic.Reflection;
+using tModPorter;
+using Steamworks;
 
 /*               WARNING!!!
  *        
@@ -22,199 +33,43 @@ namespace PaletteAnalyzer
 {
     public class PAmain : ModPlayer
     {
-        
-        public override void ProcessTriggers(TriggersSet triggersSet)
+        #region Cheats
+        private static void Teleport_XY(int X, int Y)
         {
-            
-            if (!PaletteAnalyzer.Palette.JustPressed) return;
-            if (File.Exists("C:\\ARTs\\colors\\tiles.txt"))
-            {
-                File.Delete("C:\\ARTs\\colors\\tiles.txt");
-            }
-            Main.NewText("The game freezes for 10 seconds.");
-            Main.NewText("if you saw a gray(not red) message when the game unfreeze");
-            Main.NewText("then the scipt worked correctly.");
-            PaletteSttr();
-
-            
+            Player player = Main.player[0];
+            Vector2 pos = new Vector2(X, Y);
+            pos = new Vector2(pos.X * 16 + 8 - player.width / 2, pos.Y * 16 - player.height);
+            player.Teleport(pos, 2, 0);
         }
-
-        private static void PaletteSttr()
+        private static void GodModeSet()
         {
-            /*
-             * get maxtile (X and Y) from a file maxtileXndY
-             * who located on the notsortedcol (c:\ART)
-             * 
-             * 
-             *
-             */
-            int maxTilesX;
-            int maxTilesY;
-            if (!Directory.Exists("C:\\ARTs\\colors"))
+            if (GodMode.Enabled) { return; }
+            Main.NewText("GodMode is on for 10 sec");
+            GodMode.Enabled = true;
+            Thread.Sleep(10000);
+            GodMode.Enabled = false;
+            Main.NewText("GodMode is off");
+        }
+        private static bool MapRevealer()
+        {
+            int maxTilesX = Data.maxtileX;
+            int maxTilesY = Data.maxtileY;
+
+            bool result = false;
+            for (int i = 0; i < maxTilesX + 10; i++)
             {
-                Directory.CreateDirectory("C:\\ARTs\\colors");
-            }
-            string notsortedcol = "C:\\ARTs\\colors\\nscolors.txt";
-            string maxtile = "C:\\ARTs\\colors\\maxtileXndY.txt";
-            string sortedcol = "C:\\ARTs\\colors\\sortedcolors.txt";
-            if (File.Exists(maxtile))
-            {
-                using (StreamReader f = new StreamReader(maxtile))
+                for (int j = 0; j < maxTilesY + 10; j++)
                 {
-                    maxTilesX = Convert.ToInt32(f.ReadLine());
-                    maxTilesY = Convert.ToInt32(f.ReadLine());
+                    if (WorldGen.InWorld(i, j))
+                        Main.Map.Update(i, j, 255);
                 }
             }
-            else
-            {
-                // if file not exist
-                maxTilesX = 200;
-                maxTilesY = 1100;
-                File.AppendAllText(maxtile, maxTilesX + Environment.NewLine + maxTilesY);
-            }
-            
-            // ---------------------------------
-            int minTilesY = 100;
-            int minTilesX = 100;
-            //int maxTilesY = Main.maxTilesY - 100;
-
-            //Player player; 
-
-            //RunTeleport(player, new Vector2(Main.spawnTileX, Main.spawnTileY), syncData, true);
-            //File.Create(notsortedcol);
-            if (File.Exists(notsortedcol))
-            {
-                File.Delete(notsortedcol);
-            }
-            if (File.Exists(sortedcol))
-            {
-                File.Delete(sortedcol);
-            }
-            for (int i = minTilesX; i < maxTilesX; i++)
-            {
-                for (int j = minTilesY; j < maxTilesY; j++)
-                {
-
-                    try
-                    {
-                        MapTile mapTile = Main.Map[i, j];
-                        if (Main.tile[i, j].WallType != 0)
-                        {
-                            File.AppendAllText(notsortedcol, string.Concat(new object[] { "0-", Main.tile[i, j].WallType, "\t", GetPaintFromByte(Main.tile[i, j].WallColor), "\t", MapHelper.GetMapTileXnaColor(ref mapTile).Hex3().ToUpper(), Environment.NewLine }));
-                            //File.AppendAllText(notsortedcol, string.Concat(new object[] { "0", Environment.NewLine, Main.tile[i, j].WallType, Environment.NewLine, GetPaintFromByte(Main.tile[i, j].WallColor), Environment.NewLine, MapHelper.GetMapTileXnaColor(ref mapTile).Hex3().ToUpper(), Environment.NewLine }));
-
-                        }
-                        else // add "	", Convert.ToString(i), "	", Convert.ToString(j), for debug
-                        {
-                            if (Main.tile[i, j].TileType != 0)
-                            {
-                                File.AppendAllText(notsortedcol, string.Concat(new object[] { "1-", Main.tile[i, j].TileType, "\t", GetPaintFromByte(Main.tile[i, j].TileColor), "\t", MapHelper.GetMapTileXnaColor(ref mapTile).Hex3().ToUpper(), Environment.NewLine }));
-                                //File.AppendAllText(notsortedcol, string.Concat(new object[] { "1", Environment.NewLine, Main.tile[i, j].TileType, Environment.NewLine, GetPaintFromByte(Main.tile[i, j].TileColor), Environment.NewLine, MapHelper.GetMapTileXnaColor(ref mapTile).Hex3().ToUpper(), Environment.NewLine }));
-                            }
-                        }
-                    }
-                    catch (Exception)
-
-                    {
-                        //MessageBox.Show("Error.");
-                        //string path2 = @"c:\temp\MyTest.txt";
-                        //using (FileStream fs = File.Create(path2))
-                        //{
-                        //    byte[] info = new UTF8Encoding(true).GetBytes("This is some text in the file.");
-                        //    // Add some information to the file.
-                        // //    fs.Write(info, 0, info.Length);
-                        // }
-                    }
-                }
-            }
-            Thread.Sleep(1000);
-            ColorChose(notsortedcol,sortedcol);
+            Main.refreshMap = true;
+            result = true;
+            return result;
         }
-
-        private static void ColorChose(string path, string path_sorted)
-        {
-            //string path = "C:\\colors\\colors.txt";
-            List<Tuple<string, string, Color>> tiledata = new List<Tuple<string, string, Color>>();
-
-            foreach (string line in File.ReadLines(path))
-            {
-                string[] array10 = line.Split(new char[] { '	' });
-                string tile = array10[0];
-                string paint = array10[1];
-                string color = array10[2];
-
-                tiledata.Add(new Tuple<string, string, Color>(tile, paint, System.Drawing.ColorTranslator.FromHtml("#" + color)));
-            }
-
-            // Create An IOrderEnumerable List
-            var tiledatalist = tiledata.OrderBy(color => color.Item3.GetHue()).ThenBy(o => o.Item3.R * 3 + o.Item3.G * 2 + o.Item3.B * 1);
-
-            // Expand Each Item Of The List
-            foreach (var tiledatainfo in tiledatalist)
-            {
-                // Define info from the list item
-                string tile = tiledatainfo.Item1;
-                string paint = tiledatainfo.Item2;
-                Color color = tiledatainfo.Item3;
-
-                
-                // Output the data
-                File.AppendAllText(path_sorted,tile + "\t" + paint + "\t" + ColorConverterExtensions.ToHexString(color).Replace("#", "") + Environment.NewLine);
-            }
-
-            // End Sub
-            Thread.Sleep(1000);
-            RemDuple(path_sorted);
-            return;
-        }
-
-        private static void RemDuple(string path_sort)
-        {
-            
-            //Thread.Sleep(2000);
-
-            //string path = "C:\\ARTs\\nscolors.txt";
-            //string path2 = "C:\\ARTs\\tiles.txt";
-            string[] lines = File.ReadAllLines(path_sort);
-            File.Delete(path_sort);
-            lines = lines.Take(lines.Length - 1).ToArray();
-            try
-            {
-                foreach (var line in lines.Where(x => x.Split('\t')[2] != null).GroupBy(x => x.Split('\t')[2]).Select(y => y.FirstOrDefault()))
-                {
-                    // Add value.
-                    File.AppendAllText(path_sort, line + Environment.NewLine);
-                }
-            }
-            catch(Exception)
-            {
-                //File.Create(path2);
-            }
-            Thread.Sleep(1000);
-            Create_tile_File(path_sort);
-            
-        }
-
-        private static void Create_tile_File(string path)
-        {
-            //string path = "C:\\ARTs\\nscolors.txt";
-            //string path2 = "C:\\ARTs\\tiles.txt";
-            string[] lines = File.ReadAllLines(path);
-            File.Delete(path);
-            char[] separators = new char[] { '\t', '-' };
-            foreach (var line in lines)
-            {
-                string[] subs = line.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var sub in subs)
-                {
-                    File.AppendAllText(path, sub + Environment.NewLine );
-                }
-            }
-            File.Delete("C:\\ARTs\\colors\\nscolors.txt");
-            File.Move("C:\\ARTs\\colors\\sortedcolors.txt", "C:\\ARTs\\colors\\tiles.txt");
-            Main.NewText("palette file for py-script created on C:ARTs\\colors\\", 230, 230, 230);
-        }
-
+        #endregion
+        #region Tools
         private static string GetPaintFromByte(byte color)
         {
             string result = "None";
@@ -349,9 +204,375 @@ namespace PaletteAnalyzer
 
             return result;
         }
+        private static string GetPaintNameFromByte(byte color)
+        {
+            string result = color.ToString();
+            if (color == 0)
+            {
+                result = "NonePaint";
+            }
+            else if (color == 1)
+            {
+                result = "RedPaint";
+            }
+            else if (color == 2)
+            {
+                result = "OrangePaint";
+            }
+            else if (color == 3)
+            {
+                result = "YellowPaint";
+            }
+            else if (color == 4)
+            {
+                result = "LimePaint";
+            }
+            else if (color == 5)
+            {
+                result = "GreenPaint";
+            }
+            else if (color == 6)
+            {
+                result = "TealPaint";
+            }
+            else if (color == 7)
+            {
+                result = "CyanPaint";
+            }
+            else if (color == 8)
+            {
+                result = "SkyBluePaint";
+            }
+            else if (color == 9)
+            {
+                result = "BluePaint";
+            }
+            else if (color == 10)
+            {
+                result = "PurplePaint";
+            }
+            else if (color == 11)
+            {
+                result = "VioletPaint";
+            }
+            else if (color == 12)
+            {
+                result = "PinkPaint";
+            }
+            else if (color == 13)
+            {
+                result = "DeepRedPaint";
+            }
+            else if (color == 14)
+            {
+                result = "DeepOrangePaint";
+            }
+            else if (color == 15)
+            {
+                result = "DeepYellowPaint";
+            }
+            else if (color == 16)
+            {
+                result = "DeepLimePaint";
+            }
+            else if (color == 17)
+            {
+                result = "DeepGreenPaint";
+            }
+            else if (color == 18)
+            {
+                result = "DeepTealPaint";
+            }
+            else if (color == 19)
+            {
+                result = "DeepCyanPaint";
+            }
+            else if (color == 20)
+            {
+                result = "DeepSkyBluePaint";
+            }
+            else if (color == 21)
+            {
+                result = "DeepBluePaint";
+            }
+            else if (color == 22)
+            {
+                result = "DeepPurplePaint";
+            }
+            else if (color == 23)
+            {
+                result = "DeepVioletPaint";
+            }
+            else if (color == 24)
+            {
+                result = "DeepPinkPaint";
+            }
+            else if (color == 25)
+            {
+                result = "BlackPaint";
+            }
+            else if (color == 26)
+            {
+                result = "WhitePaint";
+            }
+            else if (color == 27)
+            {
+                result = "GrayPaint";
+            }
+            else if (color == 28)
+            {
+                result = "BrownPaint";
+            }
+            else if (color == 29)
+            {
+                result = "ShadowPaint";
+            }
+            else if (color == 30)
+            {
+                result = "NegativePaint";
+            }
+            else if (color == 31)
+            {
+                result = "IlluminantPaint";
+            }
+            return result;
+        }
+        
+        private static void ColorChose()
+        {
+            List<string> sortedcol = new List<string>();
+            List<Tuple<string, string, System.Drawing.Color>> tiledata = new List<Tuple<string, string, System.Drawing.Color>>();
+            string[] notsortedcol = Data.notsortedcol;
+            foreach (string line in notsortedcol)
+            {
+                string[] array10 = line.Split(new char[] { '	' });
+                string tile = array10[0];
+                string paint = array10[1];
+                string color = array10[2];
 
+                tiledata.Add(new Tuple<string, string, System.Drawing.Color>(tile, paint, System.Drawing.ColorTranslator.FromHtml("#" + color)));
+            }
+
+            // Create An IOrderEnumerable List
+            var tiledatalist = tiledata.OrderBy(color => color.Item3.GetHue()).ThenBy(o => o.Item3.R * 3 + o.Item3.G * 2 + o.Item3.B * 1);
+
+            // Expand Each Item Of The List
+            foreach (var tiledatainfo in tiledatalist)
+            {
+                // Define info from the list item
+                string tile = tiledatainfo.Item1;
+                string paint = tiledatainfo.Item2;
+                System.Drawing.Color color = tiledatainfo.Item3;
+
+
+                // Output the data
+                sortedcol.Add(tile + "\t" + paint + "\t" + ColorConverterExtensions.ToHexString(color).Replace("#", ""));
+            }
+            RemDuple(sortedcol.ToArray());
+            return;
+        }
+        private static void RemDuple(string[] array)
+        {
+
+            List<string> sortedcol = new List<string>();
+            array = array.Take(array.Length - 1).ToArray();
+            try
+            {
+                foreach (var line in array.Where(x => x.Split('\t')[2] != null).GroupBy(x => x.Split('\t')[2]).Select(y => y.FirstOrDefault()))
+                {
+                    // Add value.
+                    sortedcol.Add(line);
+                }
+            }
+            catch (Exception)
+            {
+            }
+            Create_tile_File(sortedcol);
+
+        }
+        private static void Create_tile_File(List<string> lines)
+        {
+            List<string> sortedcol = new List<string>();
+            char[] separators = new char[] { '\t', '-', '\n' };
+            foreach (var line in lines)
+            {
+                string[] subs = line.Split(separators);
+                List<string> subs2 = new List<string>();
+                foreach (var sub in subs)
+                {
+                    subs2.Add(sub);
+                }
+                // subs[0] = wall or tile \ bool-int value(1 or 0)
+                // subs[1] = Name of the Pixel
+                // subs[2] = Block or Wall
+                // subs[3] = Paint name of the Pixel
+                // subs[4] = Pixel's id
+                // subs[5] = Pixel's paint id
+                // subs[6] = hex value of Pixel
+                sortedcol.Add($"{subs2[0]}:{subs2[4]}:{subs2[5]}:{subs2[6]}:{subs2[2]}:{subs2[1]}:{subs[3]}");
+                //Main.NewText(subs[0] + ":" + subs[1] + ":" + subs[2] + ":" + subs[3], 230, 230, 230);
+            }
+            File.WriteAllLines($"{Data.path}\\tiles.txt", sortedcol);
+            Main.NewText($"palette file for py-script created on {Data.path}", 230, 230, 230);
+        }
+        #endregion
+        public override void ProcessTriggers(TriggersSet triggersSet)
+        {
+            
+            if (!PaletteAnalyzer.Palette.JustPressed) return;
+            if (File.Exists($"{Data.path}\\tiles.txt"))
+            {
+                File.Delete($"{Data.path}\\tiles.txt");
+            }
+            Main.NewText("The approximate time for creating palette is 10 seconds",191,255,94);
+            //Main.NewText("if you saw a gray(not red) message when the game unfreeze");
+            //Main.NewText("then the scipt worked correctly.");
+            if (MapRevealer() == true)
+            {
+                Thread thread2 = new Thread(GodModeSet);
+                thread2.Start();
+                Thread thread1 = new Thread(PaletteSttr);
+                thread1.Start();
+            }
+        }
+        private static string[] GetConfig()
+        {
+            string path = Data.path = System.Environment.GetEnvironmentVariable("USERPROFILE") + "\\Documents" + "\\PixelArtCreatorByMixailka";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            if (!File.Exists(path + "\\config.cfg"))
+            {
+                //File.Create(path + "\\config.cfg");
+                Main.NewText("config file not found", 247, 83, 148);
+                Main.NewText($"config file was created on {path}", 247, 83, 148);
+                File.WriteAllLines(path + "\\config.cfg", new string[] {"MaxTile X> ","MaxTile Y> ","Torchs path> ","Exceptions path> "});
+                return null;
+            }
+            string[] config = File.ReadAllLines(path + "\\config.cfg");
+            int index = 0;
+            config[index] = config[index].Replace("MaxTile X>","").Trim();
+            index++;
+            config[index] = config[index].Replace("MaxTile Y>", "").Trim();
+            index++;
+            config[index] = config[index].Replace("Torchs path>", "").Trim();
+            index++;
+            config[index] = config[index].Replace("Exceptions path>", "").Trim();
+            foreach (var item in config)
+            {
+                if (item == null || item == "") { Main.NewText($"Config error", 247, 83, 148); Main.NewText($"One of the required arguments is empty", 247, 83, 148); return null; }
+            }
+            return config;
+        }
+        private static bool DataSet()
+        {
+            string[] config = GetConfig();
+            if (config == null) return false;
+            #region Max Tiles
+            Data.maxtileX = Convert.ToInt32(config[0]);
+            Data.maxtileY = Convert.ToInt32(config[1]);
+            #endregion
+            Data.torches = File.ReadAllLines(config[2]);
+            string[] Exceptions = File.ReadAllLines(config[3]);
+            string[] item;
+            foreach (string elem in Exceptions)
+            {
+                item = elem.Split(':');
+                if (item[0] == "1") { Data.Exceptions.Tiles.Add(item[1]); } else { Data.Exceptions.Walls.Add(item[1]); }
+            }
+            return true;
+        }
+        private static void PaletteSttr()
+        {
+            /*
+             * get maxtile (X and Y) from a file maxtileXndY
+             * who located on the notsortedcol (c:\ART)
+             * 
+             * 
+             *
+             */
+            if (!DataSet()) { return; }
+            Teleport_XY(Data.maxtileX + 200, Data.minTileY + 20);
+            int maxTilesX = Data.maxtileX;
+            int maxTilesY = Data.maxtileY;
+            int minTilesX = Data.minTileX;
+            int minTilesY = Data.minTileY;
+            string[] torches = Data.torches;
+            List<string> notsortedcol = new List<string>();
+            List<string> TileNames = new List<string>();
+            int index = 0;
+            //string i = 
+            
+            for (int i = minTilesX; i < maxTilesX; i++)
+            {
+                for (int j = minTilesY; j < maxTilesY; j++)
+                {
+                    MapTile mapTile = Main.Map[i, j];
+                    if (Data.Exceptions.Walls.Contains(Main.tile[i, j].WallType.ToString()) || Data.Exceptions.Tiles.Contains(Main.tile[i, j].TileType.ToString())) { goto HandledException; }
+                    if (Main.tile[i, j].WallType != 0 && !torches.Contains(Convert.ToString(Main.tile[i, j].TileType)))
+                    {
+                        notsortedcol.Add(string.Concat(new object[] { "0-", Terraria.ID.WallID.Search.GetName(Main.tile[i, j].WallType),"-Wall-", GetPaintNameFromByte(Main.tile[i, j].WallColor), "-", Main.tile[i, j].WallType, "\t", GetPaintFromByte(Main.tile[i, j].WallColor), "\t", MapHelper.GetMapTileXnaColor(ref mapTile).Hex3().ToUpper() }));
+                        //File.AppendAllText(notsortedcol, string.Concat(new object[] { "0", Environment.NewLine, Main.tile[i, j].WallType, Environment.NewLine, GetPaintFromByte(Main.tile[i, j].WallColor), Environment.NewLine, MapHelper.GetMapTileXnaColor(ref mapTile).Hex3().ToUpper(), Environment.NewLine }));
+                        ;
+                    }
+                    else // add "	", Convert.ToString(i), "	", Convert.ToString(j), for debug
+                    {
+                        if (Main.tile[i, j].TileType != 0)
+                        {
+                            notsortedcol.Add(string.Concat(new object[] { "1-", Terraria.ID.TileID.Search.GetName(Main.tile[i, j].TileType), "-Block-", GetPaintNameFromByte(Main.tile[i, j].TileColor),"-", Main.tile[i, j].TileType, "\t", GetPaintFromByte(Main.tile[i, j].TileColor), "\t", MapHelper.GetMapTileXnaColor(ref mapTile).Hex3().ToUpper() }));
+                            //File.AppendAllText(notsortedcol, string.Concat(new object[] { "1", Environment.NewLine, Main.tile[i, j].TileType, Environment.NewLine, GetPaintFromByte(Main.tile[i, j].TileColor), Environment.NewLine, MapHelper.GetMapTileXnaColor(ref mapTile).Hex3().ToUpper(), Environment.NewLine }));
+                        }
+                    }
+                    HandledException:
+                    index++;
+                }
+            }
+            Data.notsortedcol = notsortedcol.ToArray();
+            ColorChose();
+        }
+
+
+
+        
 
     }
 
 
+}
+class GodMode
+{
+    public static bool Enabled = false; 
+}
+class Data
+{
+    public static string path = String.Empty;
+    public static int maxtileX = 200;
+    public static int maxtileY = 1100;
+    public static int minTileX, minTileY = 100;
+    public static string[] notsortedcol, sortedcol, torches;
+    public static class Exceptions
+    {
+        public static List<string> Walls = new List<string>();
+		public static List<string> Tiles = new List<string>();
+    }
+}
+class GodModeModPlayer : ModPlayer
+{
+    public override bool FreeDodge(Player.HurtInfo info)
+    {
+        if (GodMode.Enabled)
+            return true;
+        return base.FreeDodge(info);
+    }
+
+    public override void PreUpdate()
+    {
+        if (GodMode.Enabled)
+        {
+            Player.statLife = Player.statLifeMax2;
+            Player.statMana = Player.statManaMax2;
+            Player.wingTime = Player.wingTimeMax;
+        }
+    }
 }

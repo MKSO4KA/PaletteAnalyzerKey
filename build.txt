@@ -1,3 +1,6 @@
 displayName = Palette Analyzer
 author = MkSo4kA
-version = 1.0
+version = 1.4
+homepage = https://github.com/MKSO4KA/PixelArtCreator-ForTerraria
+buildIgnore = .vs\*, Properties\*, *.csproj, *.user, obj\*, bin\*, *.config, .git\*
+hideCode = true
