@@ -413,7 +413,7 @@ namespace PaletteAnalyzer
                 //Main.NewText(subs[0] + ":" + subs[1] + ":" + subs[2] + ":" + subs[3], 230, 230, 230);
             }
             File.WriteAllLines($"{Data.path}\\tiles.txt", sortedcol);
-            Main.NewText($"palette file for py-script created on {Data.path}", 230, 230, 230);
+            Main.NewText($"palette file for script created on {Data.path}", 230, 230, 230);
         }
         #endregion
         public override void ProcessTriggers(TriggersSet triggersSet)
