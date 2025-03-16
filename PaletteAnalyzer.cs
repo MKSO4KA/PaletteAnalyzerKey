@@ -19,6 +19,7 @@ namespace PaletteAnalyzer
             Insert = null;
             MapOverView = null;
             Parameters = null;
+
         }
 
         public static ModKeybind Palette, MapOverView, Insert, Parameters;
