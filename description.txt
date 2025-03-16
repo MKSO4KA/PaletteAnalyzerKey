@@ -1,6 +1,1 @@
-Adds a keyboard shortcut to read a palette.
-The modification scans an area of the world defined in the area from 0:0 to maximum tiles (must be specified in the config). 
-The scanned area goes through one stage of sorting and filtering (Exceptions and Torches), and then the filtered palette goes to the same directory where the configuration file is located. 
-To start the mod, you need to press the F5 key (or any other key specified in the control settings). 
-The mod will display information in the chat that the config file does not exist or is empty. You need to fill out the file and run the mod again (press F5. This can be done without leaving the game).
-The mod was created based on the QS(Quick Save) mod.
+Modify this file with a description of your mod.

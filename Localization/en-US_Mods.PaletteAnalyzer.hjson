@@ -1,1 +1,77 @@
-"Keybinds.Palette Creator.DisplayName": Palette  Creator
+Keybinds: {
+	MapOverView.DisplayName: Map Over View
+	"Palette Creator.DisplayName": Palette  Creator
+	ArtInsert.DisplayName: Art Insert
+	Godmode&Tp.DisplayName: Godmode& Tp
+}
+
+Configs: {
+	PaletteAnalyzerConfig: {
+		DisplayName: Palette Analyzer Config
+
+		DirectoryPath: {
+			Label: Directory Path
+			Tooltip: ""
+		}
+
+		ExceptionsEnabled: {
+			Label: Exceptions Enabled
+			Tooltip: Отметьте, чтобы добавить ваши тайлы-исключения к уже существуующим.
+		}
+
+		VideoDirectoryPath: {
+			Label: Video Directory Path
+			Tooltip: Директория для открытия кадров видео файлов
+		}
+
+		VideoFileName: {
+			Label: Video File Name
+			Tooltip: Безопасное имя файла (только буквы, цифры, _ и -)
+		}
+
+		PaletteFilePath: {
+			Label: Palette File Path
+			Tooltip: Желаемый полный путь к создаваемой палитре
+		}
+
+		TorchsPath: {
+			Label: Torchs Path
+			Tooltip: Путь к настенным элементам
+		}
+
+		ExceptionsPath: {
+			Label: Exceptions Path
+			Tooltip: Путь к исключениям (всё кроме стен)
+		}
+
+		TilesPath: {
+			Label: Tiles Path
+			Tooltip: Путь к исключениям (всё кроме стен)
+		}
+
+		MaxTileX: {
+			Label: Max Tile X
+			Tooltip: Максимальная граница справа для размещения палитры
+		}
+
+		MaxTileY: {
+			Label: Max Tile Y
+			Tooltip: Максимальная граница снизу для размещения палитры
+		}
+
+		BorderMinMax: {
+			Label: Border Min Max
+			Tooltip: Отметьте, чтобы добавить ваши тайлы-исключения к уже существуующим.
+		}
+
+		MinTileX: {
+			Label: Min Tile X
+			Tooltip: Минимальная граница справа для размещения палитры
+		}
+
+		MinTileY: {
+			Label: Min Tile Y
+			Tooltip: Минимальная граница снизу для размещения палитры
+		}
+	}
+}

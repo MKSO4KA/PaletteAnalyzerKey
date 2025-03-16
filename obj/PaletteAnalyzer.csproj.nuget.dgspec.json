@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\USER\\Source\\Repos\\MKSO4KA\\PaletteAnalyzerKey\\PaletteAnalyzer.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\USER\\Source\\Repos\\MKSO4KA\\PaletteAnalyzerKey\\PaletteAnalyzer.csproj": {
+      "restore": {
+        "projectUniqueName": "C:\\Users\\USER\\Source\\Repos\\MKSO4KA\\PaletteAnalyzerKey\\PaletteAnalyzer.csproj",
+        "projectPath": "C:\\Users\\USER\\Source\\Repos\\MKSO4KA\\PaletteAnalyzerKey\\PaletteAnalyzer.csproj",
+        "packagesPath": "C:\\Users\\USER\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\USER\\Source\\Repos\\MKSO4KA\\PaletteAnalyzerKey\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\USER\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        }
+      }
+    }
+  }
+}
