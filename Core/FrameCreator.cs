@@ -59,7 +59,7 @@ namespace PaletteAnalyzerKey.Core
                 }
             }
 
-            MapRevealer.RevealMapArea(100, 100, maxX, maxY);
+            Main.refreshMap = true;
         }
 
         private static bool ShouldSkipTile(Tile tile, PhotoData photo, int x, int y)
@@ -78,9 +78,11 @@ namespace PaletteAnalyzerKey.Core
                 case 0:
                 case 2:
                     WorldPlacer.SetTile(x, y, photo.Id, photo.PaintId);
+                    Main.Map.Update(x, y, 255);
                     break;
                 case 1:
                     WorldPlacer.SetWall(x, y, photo.Id, photo.PaintId);
+                    Main.Map.Update(x, y, 255);
                     break;
                 default:
                     // Логирование неожиданного состояния
