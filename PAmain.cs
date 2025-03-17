@@ -92,8 +92,7 @@ namespace PaletteAnalyzer
 
         #endregion
         private bool isTaskRunning = false; // Переменная для отслеживания состояния задачи
-        private bool isNewFrame = true;
-        private string _filepath = $@"C:\Users\USER\OneDrive\Изображения\Output\Video\photo{artkey}.txt";
+        private string _filepath;
 
         public override async void ProcessTriggers(TriggersSet triggersSet)
         {
@@ -127,7 +126,7 @@ namespace PaletteAnalyzer
                             if (!File.Exists(_filepath))
                             {
                                 artkey = artkey == (uint)1 ? (uint)1 : (uint)1;
-                                _filepath = $@"C:\Users\USER\OneDrive\Изображения\Output\Video\photo{artkey}.txt";
+                                _filepath = targetDirectory + $"{artkey}.txt";
                                 // Если файл существует, выходим из цикла
                                 break;
                             }
