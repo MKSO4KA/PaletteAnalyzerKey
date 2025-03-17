@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaletteAnalyzer", "PaletteAnalyzer.csproj", "{B79CEA31-E92B-43DC-AD6F-9E7D5723F5BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaletteAnalyzerKey", "PaletteAnalyzerKey.csproj", "{B79CEA31-E92B-43DC-AD6F-9E7D5723F5BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

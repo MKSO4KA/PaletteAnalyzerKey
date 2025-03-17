@@ -1,1 +1,165 @@
 "Keybinds.Palette Creator.DisplayName": Palette  Creator
+
+ey: {
+	Keybinds: {
+		MapOverView: {
+			DisplayName: {
+				$parentVal: Map Over View
+			}
+		}
+
+		"Palette Creator": {
+			DisplayName: {
+				$parentVal: Palette  Creator
+			}
+		}
+
+		Godmode&Tp.DisplayName: Godmode& Tp
+
+		ArtInsert: {
+			DisplayName: {
+				$parentVal: Art Insert
+			}
+		}
+
+		Godmode: {
+			DisplayName: {
+				$parentVal: Godmode
+			}
+		}
+
+		"Start Video Paste": {
+			DisplayName: {
+				$parentVal: Start  Video  Paste
+			}
+		}
+	}
+
+	Configs: {
+		PaletteAnalyzerConfig: {
+			DisplayName: {
+				$parentVal: Palette Analyzer Config
+			}
+
+			ExceptionsEnabled: {
+				Label: {
+					$parentVal: Exceptions Enabled
+				}
+
+				Tooltip: {
+					$parentVal: Отметьте, чтобы добавить ваши тайлы-исключения к уже существуующим.
+				}
+			}
+
+			BorderMinMax: {
+				Label: {
+					$parentVal: Border Min Max
+				}
+
+				Tooltip: {
+					$parentVal: Отметьте, чтобы добавить ваши тайлы-исключения к уже существуующим.
+				}
+			}
+
+			VideoDirectoryPath: {
+				Label: {
+					$parentVal: Video Directory Path
+				}
+
+				Tooltip: {
+					$parentVal: Директория для открытия кадров видео файлов
+				}
+			}
+
+			VideoFileName: {
+				Label: {
+					$parentVal: Video File Name
+				}
+
+				Tooltip: {
+					$parentVal: Безопасное имя файла (только буквы, цифры, _ и -)
+				}
+			}
+
+			PaletteFilePath: {
+				Label: {
+					$parentVal: Palette File Path
+				}
+
+				Tooltip: {
+					$parentVal: Желаемый полный путь к создаваемой палитре
+				}
+			}
+
+			TorchsPath: {
+				Label: {
+					$parentVal: Torchs Path
+				}
+
+				Tooltip: {
+					$parentVal: Путь к исключениям настенных элементов
+				}
+			}
+
+			ExceptionsPath: {
+				Label: {
+					$parentVal: Exceptions Path
+				}
+
+				Tooltip: {
+					$parentVal: Путь к исключениям
+				}
+			}
+
+			MaxTileX: {
+				Label: {
+					$parentVal: Max Tile X
+				}
+
+				Tooltip: {
+					$parentVal: Максимальная граница справа для размещения палитры
+				}
+			}
+
+			MaxTileY: {
+				Label: {
+					$parentVal: Max Tile Y
+				}
+
+				Tooltip: {
+					$parentVal: Максимальная граница снизу для размещения палитры
+				}
+			}
+
+			MinTileX: {
+				Label: {
+					$parentVal: Min Tile X
+				}
+
+				Tooltip: {
+					$parentVal: Минимальная граница справа для размещения палитры
+				}
+			}
+
+			MinTileY: {
+				Label: {
+					$parentVal: Min Tile Y
+				}
+
+				Tooltip: {
+					$parentVal: Минимальная граница снизу для размещения палитры
+				}
+			}
+
+			PhotoFilePath: {
+				Label: {
+					$parentVal: Photo File Path
+				}
+
+				Tooltip: {
+					$parentVal: Желаемый полный путь к создаваемой палитре
+				}
+			}
+		}
+	}
+}

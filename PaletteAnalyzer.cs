@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using Terraria.ModLoader;
 
-namespace PaletteAnalyzer
+namespace PaletteAnalyzerKey
 {
     public class PaletteAnalyzer : Mod
     {
@@ -10,18 +10,20 @@ namespace PaletteAnalyzer
         {
             MapOverView = KeybindLoader.RegisterKeybind(this, "MapOverView", Keys.F7);
             Palette = KeybindLoader.RegisterKeybind(this, "Palette Creator", Keys.F5);
-            Parameters = KeybindLoader.RegisterKeybind(this, "Godmode&Tp", Keys.F3);
-            Insert = KeybindLoader.RegisterKeybind(this, "ArtInsert", Keys.F10);
+            Parameters = KeybindLoader.RegisterKeybind(this, "Godmode", Keys.F3);
+            InsertArt = KeybindLoader.RegisterKeybind(this, "ArtInsert", Keys.F10);
+            StartVideoProcess = KeybindLoader.RegisterKeybind(this, "Start Video Paste", Keys.RightControl);
         }
         public override void Unload()
         {
+            StartVideoProcess = null;
             Palette = null;
-            Insert = null;
+            InsertArt = null;
             MapOverView = null;
             Parameters = null;
 
         }
 
-        public static ModKeybind Palette, MapOverView, Insert, Parameters;
+        public static ModKeybind Palette, MapOverView, InsertArt, Parameters, StartVideoProcess;
     }
 }

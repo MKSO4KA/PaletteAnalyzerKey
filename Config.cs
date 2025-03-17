@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
-namespace PaletteAnalyzer
+namespace PaletteAnalyzerKey
 {
     public class PaletteAnalyzerConfig : ModConfig
     {
@@ -24,6 +24,7 @@ namespace PaletteAnalyzer
         [JsonProperty] private string _torchPath = string.Empty;
         [JsonProperty] private string _exeptionsPath = string.Empty;
         [JsonProperty] private string _tilesPath = string.Empty;
+        [JsonProperty] private string _photoPath = string.Empty;
         // Новое поле для безопасного имени
 
         // Регулярное выражение для валидации
@@ -72,7 +73,7 @@ namespace PaletteAnalyzer
         public string VideoDirectoryPath
         {
             get => _directoryPath;
-            set => _directoryPath = Directory.Exists(value) ? value : _directoryPath;
+            set => _directoryPath = Directory.Exists(value) ? value : "";
         }
         [DefaultValue("")]
         [Tooltip("Безопасное имя файла (только буквы, цифры, _ и -)")]
@@ -88,6 +89,7 @@ namespace PaletteAnalyzer
                 }
                 else
                 {
+                    _fileName = "";
                     SafeNameError = "Недопустимые символы в имени файла!";
                 }
             }
@@ -104,6 +106,22 @@ namespace PaletteAnalyzer
                     if (Directory.Exists(GetDirectoryFromPath(value)))
                     {
                         _paletteName = value;
+                    }
+                }
+            }
+        }
+        [DefaultValue("")]
+        [Tooltip("Желаемый полный путь к создаваемой палитре")]
+        public string PhotoFilePath
+        {
+            get => _photoPath;
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    if (Directory.Exists(GetDirectoryFromPath(value)))
+                    {
+                        _photoPath = value;
                     }
                 }
             }
@@ -307,6 +325,10 @@ namespace PaletteAnalyzer
 
         public bool ValidateFileName(string filename)
         {
+            if (string.IsNullOrEmpty(filename))
+            {
+                return false;
+            }
             bool valid = SafeNameRegex.IsMatch(filename);
             SafeNameError = valid ? null : "Некорректное имя файла";
             return valid;
