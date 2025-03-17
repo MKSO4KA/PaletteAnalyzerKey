@@ -5,21 +5,6 @@ using Terraria;
 
 namespace PaletteAnalyzerKey.Core
 {
-    public struct PhotoData
-    {
-        public bool IsWall;
-        public bool IsTorch;
-        public ushort Id;
-        public byte PaintId;
-
-        public PhotoData(bool isWall, bool isTorch, ushort id, byte paintId)
-        {
-            IsWall = isWall;
-            IsTorch = isTorch;
-            Id = id;
-            PaintId = paintId;
-        }
-    }
     internal class FrameCreator
     {
         // Структура для улучшения читаемости

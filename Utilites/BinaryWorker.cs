@@ -1,22 +1,37 @@
 ﻿using System;
-using System.Buffers.Binary;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using PaletteAnalyzerKey.Core;
 using System.Threading.Tasks;
+using System.Buffers.Binary;
+using System.IO.MemoryMappedFiles;
 
 namespace PaletteAnalyzerKey.Utilites
 {
-    
 
-    
+    public readonly struct PhotoData
+    {
+        public readonly bool IsWall;
+        public readonly bool IsTorch;
+        public readonly ushort Id;
+        public readonly byte PaintId;
+
+        public PhotoData(bool isWall, bool isTorch, ushort id, byte paintId)
+        {
+            IsWall = isWall;
+            IsTorch = isTorch;
+            Id = id;
+            PaintId = paintId;
+        }
+    }
 
     public class BinaryWorker
     {
-        private string _path = "";
-        private ushort x, y;
+        private const int BufferSize = 6 * 1024 * 1024; // 6 МБ
+        private string _path;
+        private ushort _width, _height;
 
         public string Path
         {
@@ -26,111 +41,112 @@ namespace PaletteAnalyzerKey.Utilites
 
         public ushort Width
         {
-            get => x;
-            set => x = value;
+            get => _width;
+            set => _width = value;
         }
 
         public ushort Height
         {
-            get => y;
-            set => y = value;
+            get => _height;
+            set => _height = value;
         }
 
-        public List<PhotoData> FileValues = new List<PhotoData>();
+        public List<(bool isWall, bool isTorch, ushort id, byte paintId)> FileValues = new List<(bool isWall, bool isTorch, ushort id, byte paintId)>();
 
-        public BinaryWorker(string path)
+        public BinaryWorker(string path) => _path = path;
+
+        internal PhotoData[,] ReadAs2DArray()
         {
-            Path = path;
-        }
-
-        internal PhotoData[,] ReadAs2DArray(int temp = 0)
-        {
-            var list = new List<PhotoData>();
-            byte[] bytes = File.ReadAllBytes(Path);
-
-            Width = (ushort)((bytes[2] & 0xff) + ((bytes[3] & 0xff) << 8));
-            Height = (ushort)((bytes[4] & 0xff) + ((bytes[5] & 0xff) << 8));
-
-            for (int i = 6; i < bytes.Length && i + 4 < bytes.Length; i += 5)
-            {
-                list.Add(new PhotoData(
-                    isWall: Convert.ToBoolean(bytes[i]),
-                    isTorch: Convert.ToBoolean(bytes[i + 1]),
-                    id: (ushort)((bytes[i + 2] & 0xff) + ((bytes[i + 3] & 0xff) << 8)),
-                    paintId: bytes[i + 4]
-                ));
-            }
-            return ConvertTo2DArray(list, Width, Height);
+            var (data, width, height) = ReadData();
+            return ConvertTo2DArray(data, width, height);
         }
 
         internal PhotoData[] Read()
         {
-            byte[] fileData = File.ReadAllBytes(Path);
-            Span<byte> dataSpan = fileData.AsSpan();
+            var (data, _, _) = ReadData();
+            return data;
+        }
 
-            if (dataSpan.Length < 6)
-            {
-                return Array.Empty<PhotoData>();
-            }
+        private (PhotoData[] data, ushort width, ushort height) ReadData()
+        {
+            using var mmFile = MemoryMappedFile.CreateFromFile(_path, FileMode.Open, null, 0, MemoryMappedFileAccess.Read);
+            using var accessor = mmFile.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
 
-            Width = BinaryPrimitives.ReadUInt16LittleEndian(dataSpan.Slice(2, 2));
-            Height = BinaryPrimitives.ReadUInt16LittleEndian(dataSpan.Slice(4, 2));
+            long fileLength = accessor.Capacity;
+            if (fileLength < 6) throw new InvalidDataException("File too small");
 
-            int dataStartOffset = 6;
-            Span<byte> dataSection = dataSpan.Slice(dataStartOffset);
-            int elementsCount = dataSection.Length / 5;
+            byte[] headerBytes = new byte[6];
+            accessor.ReadArray(0, headerBytes, 0, 6);
+            Span<byte> header = headerBytes.AsSpan();
 
-            var result = new PhotoData[elementsCount];
+            ushort width = BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(2, 2));
+            ushort height = BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(4, 2));
 
-            for (int i = 0; i < elementsCount; i++)
+            int dataLength = (int)(fileLength - 6);
+            if (dataLength % 5 != 0) throw new InvalidDataException("Invalid data section");
+
+            int count = dataLength / 5;
+            PhotoData[] result = new PhotoData[count];
+            byte[] dataBytes = new byte[dataLength];
+            accessor.ReadArray(6, dataBytes, 0, dataLength);
+            Span<byte> data = dataBytes.AsSpan();
+
+            for (int i = 0; i < count; i++)
             {
                 int offset = i * 5;
                 result[i] = new PhotoData(
-                    isWall: dataSection[offset] != 0,
-                    isTorch: dataSection[offset + 1] != 0,
-                    id: BinaryPrimitives.ReadUInt16LittleEndian(dataSection.Slice(offset + 2, 2)),
-                    paintId: dataSection[offset + 4]
+                    isWall: data[offset] != 0,
+                    isTorch: data[offset + 1] != 0,
+                    id: BinaryPrimitives.ReadUInt16LittleEndian(data.Slice(offset + 2, 2)),
+                    paintId: data[offset + 4]
                 );
             }
-            return result;
+
+            _width = width;
+            _height = height;
+            return (result, width, height);
         }
 
-        private static PhotoData[,] ConvertTo2DArray(List<PhotoData> list, int width, int height)
+        private static PhotoData[,] ConvertTo2DArray(PhotoData[] data, int width, int height)
         {
-            if (list.Count != width * height)
-            {
-                throw new ArgumentException("Invalid array dimensions");
-            }
+            if (data.Length != width * height)
+                throw new ArgumentException("Dimensions mismatch");
 
             var array = new PhotoData[height, width];
-
             for (int i = 0; i < height; i++)
             {
                 for (int j = 0; j < width; j++)
                 {
-                    array[i, j] = list[i * width + j];
+                    array[i, j] = data[i * width + j];
                 }
             }
             return array;
         }
 
-        internal void Write(ushort width, ushort height, ushort widthStart = 0, List<PhotoData> array = null)
+        internal void Write(ushort width, ushort height, ushort widthStart = 0, List<(bool isWall, bool isTorch, ushort id, byte paintId)> array = null)
         {
             array ??= FileValues;
-            using var stream = File.Open(Path, FileMode.Create);
-            using var writer = new BinaryWriter(stream, Encoding.UTF8, false);
 
-            writer.Write(widthStart);
-            writer.Write(width);
-            writer.Write(height);
+            using var fs = new FileStream(_path, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize, FileOptions.SequentialScan);
 
-            foreach (var item in array)
+            Span<byte> header = stackalloc byte[6];
+            BinaryPrimitives.WriteUInt16LittleEndian(header.Slice(0, 2), widthStart);
+            BinaryPrimitives.WriteUInt16LittleEndian(header.Slice(2, 2), width);
+            BinaryPrimitives.WriteUInt16LittleEndian(header.Slice(4, 2), height);
+            fs.Write(header);
+
+            const int elementSize = 5;
+            byte[] buffer = new byte[array.Count * elementSize];
+            for (int i = 0; i < array.Count; i++)
             {
-                writer.Write(item.IsWall);
-                writer.Write(item.IsTorch);
-                writer.Write(item.Id);
-                writer.Write(item.PaintId);
+                int offset = i * elementSize;
+                var item = array[i];
+                buffer[offset] = item.isWall ? (byte)1 : (byte)0;
+                buffer[offset + 1] = item.isTorch ? (byte)1 : (byte)0;
+                BinaryPrimitives.WriteUInt16LittleEndian(buffer.AsSpan(offset + 2, 2), item.id);
+                buffer[offset + 4] = item.paintId;
             }
+            fs.Write(buffer, 0, buffer.Length);
         }
     }
 }
