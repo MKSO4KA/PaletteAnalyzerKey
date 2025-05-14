@@ -1,6 +1,7 @@
 ﻿using PaletteAnalyzerKey.Utilites;
 using PaletteAnalyzerKey.WorldGenProcessors;
 using System;
+using System.Buffers;
 using Terraria;
 
 namespace PaletteAnalyzerKey.Core
@@ -14,7 +15,7 @@ namespace PaletteAnalyzerKey.Core
         {
             var bw = new BinaryWorker(filepath);
             var photo = bw.Read();
-
+            
             // Предварительная проверка условий
             if (Main.worldID < 1 || Main.myPlayer < 0)
                 return;
@@ -22,50 +23,63 @@ namespace PaletteAnalyzerKey.Core
             int width = bw.Width;
             int height = bw.Height;
             int i = 0;
-
+            int replacedCount = 0;
+            Point[] replacedCoordinatesArray = ArrayPool<Point>.Shared.Rent(width * height);
             // Предвычисление границ
-            int maxX = 100 + width;
-            int maxY = 100 + height;
-
-            for (int w = 0; w < width; w++)
+            try
             {
-                int x = w + 100;
-                bool inWorldX = x >= 0 && x < Main.maxTilesX;
+                int maxX = 100 + width;
+                int maxY = 100 + height;
 
-                for (int h = 0; h < height; h++)
+                for (int w = 0; w < width; w++)
                 {
-                    int y = h + 100;
+                    int x = w + 100;
+                    bool inWorldX = x >= 0 && x < Main.maxTilesX;
 
-                    // Проверка границ один раз
-                    if (!inWorldX || y < 0 || y >= Main.maxTilesY)
+                    for (int h = 0; h < height; h++)
                     {
+                        int y = h + 100;
+
+                        // Проверка границ один раз
+                        if (!inWorldX || y < 0 || y >= Main.maxTilesY)
+                        {
+                            i++;
+                            continue;
+                        }
+
+                        // Кэширование тайла
+                        var tile = Main.tile[x, y];
+                        var currentPhoto = photo[i];
+
+                        // Проверка необходимости изменения тайла
+                        if (ShouldSkipTile(tile, currentPhoto, x, y))
+                        {
+                            i++;
+                            continue;
+                        }
+                        replacedCoordinatesArray[replacedCount++] = new Point(x, y);
+                        ProcessTile(x, y, currentPhoto);
                         i++;
-                        continue;
                     }
+                }
 
-                    // Кэширование тайла
-                    var tile = Main.tile[x, y];
-                    var currentPhoto = photo[i];
-
-                    // Проверка необходимости изменения тайла
-                    if (ShouldSkipTile(tile, currentPhoto,x,y))
-                    {
-                        i++;
-                        continue;
-                    }
-
-                    ProcessTile(x, y, currentPhoto);
-                    i++;
+                if (replacedCount > 0)
+                {
+                    ReadOnlyMemory<Point> relevantCoordinatesMemory = new ReadOnlyMemory<Point>(replacedCoordinatesArray, 0, replacedCount);
+                    MapRevealer.RevealMapArea(relevantCoordinatesMemory);
                 }
             }
-
-            Main.refreshMap = true;
+            finally
+            {
+                ArrayPool<Point>.Shared.Return(replacedCoordinatesArray);
+            }
+            
         }
 
         private static bool ShouldSkipTile(Tile tile, PhotoData photo, int x, int y)
         {
 
-            return (tile.TileType == photo.Id || WorldGen.TileType(x,y) == photo.Id)
+            return (tile.TileType == photo.Id)
                    && tile.TileColor == photo.PaintId;
         }
 
@@ -78,11 +92,9 @@ namespace PaletteAnalyzerKey.Core
                 case 0:
                 case 2:
                     WorldPlacer.SetTile(x, y, photo.Id, photo.PaintId);
-                    Main.Map.Update(x, y, 255);
                     break;
                 case 1:
                     WorldPlacer.SetWall(x, y, photo.Id, photo.PaintId);
-                    Main.Map.Update(x, y, 255);
                     break;
                 default:
                     // Логирование неожиданного состояния

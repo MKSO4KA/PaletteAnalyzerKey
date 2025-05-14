@@ -82,8 +82,9 @@ namespace PaletteAnalyzerKey.Utilites
             ushort width = BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(2, 2));
             ushort height = BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(4, 2));
 
-            int dataLength = (int)(fileLength - 6);
-            if (dataLength % 5 != 0) throw new InvalidDataException("Invalid data section");
+            int dataLength = (int)(fileLength - 5);
+             if (dataLength % 5 != 0) throw new InvalidDataException("Invalid data section"); // МОЖЕТ БЫТЬ УЯЗВИМОСТЬ!!!!!!!!!!!!!!!!! ЧЕК!!!!!!!!!!!!!!!! БЫЛО МИНУС ШЕСТЬ
+            //if (dataLength % 5 != 0) return(null,0,0);
 
             int count = dataLength / 5;
             PhotoData[] result = new PhotoData[count];

@@ -23,6 +23,7 @@ namespace PaletteAnalyzerKey.Core
 
             // Запускаем асинхронную задачу для создания арта
             await Task.Run(() => FrameCreator.InsertBlock(_photoDirectoryPath));
+
             return;
         }
     }
